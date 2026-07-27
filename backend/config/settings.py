@@ -13,7 +13,10 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-producti
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
 ALLOWED_HOSTS = [
     h.strip()
-    for h in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,couriertracker-1.onrender.com').split(',')
+    for h in os.getenv(
+        'ALLOWED_HOSTS',
+        'localhost,127.0.0.1,testserver,couriertracker-1.onrender.com,couriertracker.vercel.app'
+    ).split(',')
     if h.strip()
 ]
 
