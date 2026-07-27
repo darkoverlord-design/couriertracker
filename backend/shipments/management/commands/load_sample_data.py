@@ -1,0 +1,119 @@
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+
+from shipments.models import ServiceType, Shipment, ShipmentStatus
+from tracking.models import TrackingEvent
+
+
+class Command(BaseCommand):
+    help = 'Load sample shipment data for demonstration'
+
+    def handle(self, *args, **options):
+        if Shipment.objects.filter(tracking_number='12345678901234').exists():
+            self.stdout.write(self.style.WARNING('Sample data already exists. Skipping.'))
+            return
+
+        now = timezone.now()
+
+        shipments_data = [
+            {
+                'tracking_number': '12345678901234',
+                'sender_name': 'Acme Corporation',
+                'recipient_name': 'Jane Smith',
+                'sender_address': '100 Industrial Blvd, Los Angeles, CA 90001',
+                'recipient_address': '450 Market Street, San Francisco, CA 94102',
+                'origin': 'Los Angeles, CA',
+                'destination': 'San Francisco, CA',
+                'current_location': 'Fresno, CA Distribution Center',
+                'status': ShipmentStatus.IN_TRANSIT,
+                'service_type': ServiceType.EXPRESS,
+                'package_weight': 12.5,
+                'package_dimensions': '18 x 12 x 8',
+                'progress_percentage': 65,
+                'origin_lat': 34.0522,
+                'origin_lng': -118.2437,
+                'current_lat': 36.7378,
+                'current_lng': -119.7871,
+                'destination_lat': 37.7749,
+                'destination_lng': -122.4194,
+                'events': [
+                    (ShipmentStatus.LABEL_CREATED, 'Los Angeles, CA', 'Shipping label created.', 96),
+                    (ShipmentStatus.PICKED_UP, 'Los Angeles, CA', 'Package picked up from sender.', 72),
+                    (ShipmentStatus.IN_TRANSIT, 'Bakersfield, CA', 'Departed origin facility.', 48),
+                    (ShipmentStatus.IN_TRANSIT, 'Fresno, CA Distribution Center', 'Arrived at regional hub.', 6),
+                ],
+            },
+            {
+                'tracking_number': '98765432109876',
+                'sender_name': 'Global Tech Inc.',
+                'recipient_name': 'Michael Johnson',
+                'sender_address': '500 Tech Park, Austin, TX 78701',
+                'recipient_address': '200 Broadway, New York, NY 10007',
+                'origin': 'Austin, TX',
+                'destination': 'New York, NY',
+                'current_location': 'Delivered - New York, NY',
+                'status': ShipmentStatus.DELIVERED,
+                'service_type': ServiceType.OVERNIGHT,
+                'package_weight': 5.2,
+                'package_dimensions': '14 x 10 x 6',
+                'progress_percentage': 100,
+                'origin_lat': 30.2672,
+                'origin_lng': -97.7431,
+                'current_lat': 40.7128,
+                'current_lng': -74.0060,
+                'destination_lat': 40.7128,
+                'destination_lng': -74.0060,
+                'events': [
+                    (ShipmentStatus.LABEL_CREATED, 'Austin, TX', 'Shipping label created.', 72),
+                    (ShipmentStatus.PICKED_UP, 'Austin, TX', 'Package picked up.', 60),
+                    (ShipmentStatus.IN_TRANSIT, 'Memphis, TN Hub', 'In transit to destination.', 36),
+                    (ShipmentStatus.OUT_FOR_DELIVERY, 'New York, NY', 'Out for delivery.', 4),
+                    (ShipmentStatus.DELIVERED, 'New York, NY', 'Delivered to recipient.', 1),
+                ],
+            },
+            {
+                'tracking_number': '55556666777788',
+                'sender_name': 'Pacific Imports',
+                'recipient_name': 'Sarah Williams',
+                'sender_address': '88 Harbor Drive, Seattle, WA 98101',
+                'recipient_address': '1200 Ocean Ave, Miami, FL 33139',
+                'origin': 'Seattle, WA',
+                'destination': 'Miami, FL',
+                'current_location': 'Denver, CO Sorting Facility',
+                'status': ShipmentStatus.IN_TRANSIT,
+                'service_type': ServiceType.STANDARD,
+                'package_weight': 22.0,
+                'package_dimensions': '24 x 18 x 12',
+                'progress_percentage': 45,
+                'origin_lat': 47.6062,
+                'origin_lng': -122.3321,
+                'current_lat': 39.7392,
+                'current_lng': -104.9903,
+                'destination_lat': 25.7617,
+                'destination_lng': -80.1918,
+                'events': [
+                    (ShipmentStatus.LABEL_CREATED, 'Seattle, WA', 'Shipping label created.', 120),
+                    (ShipmentStatus.PICKED_UP, 'Seattle, WA', 'Package picked up.', 108),
+                    (ShipmentStatus.IN_TRANSIT, 'Portland, OR', 'Departed origin facility.', 84),
+                    (ShipmentStatus.IN_TRANSIT, 'Denver, CO Sorting Facility', 'Arrived at sorting facility.', 24),
+                ],
+            },
+        ]
+
+        for data in shipments_data:
+            events = data.pop('events')
+            shipment = Shipment.objects.create(
+                **data,
+                estimated_delivery_date=(now + timezone.timedelta(days=3)).date(),
+            )
+            for status, location, description, hours_ago in events:
+                TrackingEvent.objects.create(
+                    shipment=shipment,
+                    status=status,
+                    location=location,
+                    description=description,
+                    event_timestamp=now - timezone.timedelta(hours=hours_ago),
+                )
+
+        self.stdout.write(self.style.SUCCESS('Successfully loaded 3 sample shipments.'))
+        self.stdout.write('Try tracking: 12345678901234')
