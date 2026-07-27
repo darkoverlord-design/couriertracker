@@ -17,4 +17,8 @@ if [ "$LOAD_SAMPLE_DATA" = "true" ]; then
   python manage.py load_sample_data
 fi
 
+if [ "$LOAD_SAMPLE_DATA" = "true" ]; then
+  python manage.py load_sample_data
+fi
+
 exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120
