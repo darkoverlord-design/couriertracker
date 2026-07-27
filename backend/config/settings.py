@@ -61,7 +61,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DB_ENGINE = os.getenv('DB_ENGINE', 'postgresql').lower()
+DB_ENGINE = os.getenv('DB_ENGINE', 'sqlite').lower()
 
 if DB_ENGINE == 'sqlite':
     DATABASES = {

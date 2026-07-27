@@ -1,11 +1,13 @@
 #!/bin/bash
 set -e
 
-echo "Waiting for PostgreSQL..."
-while ! python -c "import psycopg2; psycopg2.connect(dbname='${DB_NAME}', user='${DB_USER}', password='${DB_PASSWORD}', host='${DB_HOST}', port='${DB_PORT}')" 2>/dev/null; do
-  sleep 1
-done
-echo "PostgreSQL is ready."
+if [ "${DB_ENGINE:-sqlite}" = "postgresql" ]; then
+  echo "Waiting for PostgreSQL..."
+  while ! python -c "import psycopg2; psycopg2.connect(dbname='${DB_NAME}', user='${DB_USER}', password='${DB_PASSWORD}', host='${DB_HOST}', port='${DB_PORT}')" 2>/dev/null; do
+    sleep 1
+  done
+  echo "PostgreSQL is ready."
+fi
 
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
