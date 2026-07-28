@@ -2,8 +2,20 @@ import axios from 'axios'
 
 import type { ContactFormData, TrackingResponse } from '../types/shipment'
 
+function resolveApiBaseUrl(): string {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL
+  }
+
+  if (import.meta.env.PROD) {
+    return 'https://couriertracker-1.onrender.com/api/v1'
+  }
+
+  return '/api/v1'
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api/v1',
+  baseURL: resolveApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -11,8 +23,17 @@ const api = axios.create({
 })
 
 export async function trackShipment(trackingNumber: string): Promise<TrackingResponse> {
-  const { data } = await api.get<TrackingResponse>(`/track/${trackingNumber}/`)
-  return data
+  const { data } = await api.get<TrackingResponse | { detail?: string } | string>(`/track/${trackingNumber}/`)
+
+  if (data && typeof data === 'object' && 'shipment' in data && 'tracking_history' in data) {
+    return data as TrackingResponse
+  }
+
+  if (data && typeof data === 'object' && 'detail' in data && typeof data.detail === 'string') {
+    throw new Error(data.detail)
+  }
+
+  throw new Error('Tracking response was invalid.')
 }
 
 export async function submitContactForm(formData: ContactFormData): Promise<{ detail: string }> {
