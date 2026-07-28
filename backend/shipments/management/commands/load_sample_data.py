@@ -9,11 +9,38 @@ class Command(BaseCommand):
     help = 'Load sample shipment data for demonstration'
 
     def handle(self, *args, **options):
-        if Shipment.objects.filter(tracking_number='12345678901234').exists():
-            self.stdout.write(self.style.WARNING('Sample data already exists. Skipping.'))
-            return
-
         now = timezone.now()
+
+        if Shipment.objects.filter(tracking_number='12345678901234').exists():
+            shipment = Shipment.objects.get(tracking_number='12345678901234')
+            shipment.sender_name = 'Zhou Kai (周凯)'
+            shipment.sender_address = 'Room 1205, Building 3, 188 Century Avenue, Pudong New Area, Shanghai 200120, China'
+            shipment.recipient_name = 'Brittney Champagne'
+            shipment.recipient_address = '857 Bouie Road, Carriere, Mississippi 39426, USA'
+            shipment.origin = 'Shanghai, China'
+            shipment.destination = 'Carriere, MS, USA'
+            shipment.current_location = 'Shanghai, China'
+            shipment.status = ShipmentStatus.IN_TRANSIT
+            shipment.service_type = ServiceType.EXPRESS
+            shipment.package_weight = 13.8
+            shipment.package_dimensions = '55 x 40 x 30'
+            shipment.package_contents = 'Laptop\nExternal monitor\nUPS (battery backup)'
+            shipment.progress_percentage = 65
+            shipment.origin_lat = 31.2304
+            shipment.origin_lng = 121.4737
+            shipment.current_lat = 31.2304
+            shipment.current_lng = 121.4737
+            shipment.destination_lat = 31.1745
+            shipment.destination_lng = -89.6537
+            shipment.estimated_delivery_date = (now + timezone.timedelta(days=3)).date()
+            shipment.save()
+            TrackingEvent.objects.filter(shipment=shipment).delete()
+            TrackingEvent.objects.create(shipment=shipment, status=ShipmentStatus.LABEL_CREATED, location='Shanghai, China', description='Shipping label created.', event_timestamp=now - timezone.timedelta(hours=96))
+            TrackingEvent.objects.create(shipment=shipment, status=ShipmentStatus.PICKED_UP, location='Shanghai, China', description='Package picked up from sender.', event_timestamp=now - timezone.timedelta(hours=72))
+            TrackingEvent.objects.create(shipment=shipment, status=ShipmentStatus.IN_TRANSIT, location='Shanghai, China', description='Departed origin facility.', event_timestamp=now - timezone.timedelta(hours=48))
+            TrackingEvent.objects.create(shipment=shipment, status=ShipmentStatus.IN_TRANSIT, location='Fresno, CA Distribution Center', description='Arrived at regional hub.', event_timestamp=now - timezone.timedelta(hours=6))
+            self.stdout.write(self.style.SUCCESS('Updated existing shipment for tracking number 12345678901234.'))
+            return
 
         shipments_data = [
             {
