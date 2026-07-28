@@ -15,7 +15,7 @@ ALLOWED_HOSTS = [
     h.strip()
     for h in os.getenv(
         'ALLOWED_HOSTS',
-        'localhost,127.0.0.1,testserver,couriertracker-1.onrender.com,couriertracker.vercel.app'
+        'localhost,127.0.0.1,testserver,couriertracker-1.onrender.com,frontend-virid-eta-qbm19vrciu.vercel.app'
     ).split(',')
     if h.strip()
 ]
