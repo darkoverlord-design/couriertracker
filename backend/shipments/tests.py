@@ -1,4 +1,5 @@
 from django.test import TestCase
+from rest_framework.test import APIClient
 
 from .models import Shipment, ShipmentStatus
 
@@ -40,3 +41,16 @@ class ShipmentTrackingNumberTests(TestCase):
         shipment.save()
 
         self.assertEqual(shipment.status, ShipmentStatus.IN_TRANSIT)
+
+    def test_public_tracking_endpoint_returns_requested_default_shipment_details(self):
+        client = APIClient()
+
+        response = client.get('/api/v1/track/12345678901234/')
+
+        self.assertEqual(response.status_code, 200)
+        shipment_data = response.json()['shipment']
+        self.assertEqual(shipment_data['sender_name'], 'Zhou Kai (周凯)')
+        self.assertEqual(shipment_data['recipient_name'], 'Brittney Champagne')
+        self.assertEqual(shipment_data['package_weight'], '13.80')
+        self.assertEqual(shipment_data['package_dimensions'], '55 x 40 x 30')
+        self.assertEqual(shipment_data['package_contents'], 'Laptop\nExternal monitor\nUPS (battery backup)')
