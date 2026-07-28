@@ -27,7 +27,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('config.api_urls')),
     path('', serve_frontend, name='home'),
-    re_path(r'^(?!api/|admin/|static/).+', serve_frontend),
+    re_path(r'^(?!api/|admin/|static/|assets/|favicon\.svg|.*\.(?:js|css|png|jpg|jpeg|svg|ico|webp|json|map)$).+', serve_frontend),
 ]
 
 admin.site.site_header = 'CourierTrack Administration'
