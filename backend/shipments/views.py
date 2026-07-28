@@ -23,6 +23,11 @@ class ShipmentViewSet(viewsets.ModelViewSet):
     search_fields = ['tracking_number', 'sender_name', 'recipient_name']
     ordering_fields = ['created_at', 'updated_at', 'estimated_delivery_date']
 
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return [AllowAny()]
+        return [IsAdminUser()]
+
 
 class PublicTrackView(APIView):
     permission_classes = [AllowAny]
