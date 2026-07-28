@@ -4,10 +4,13 @@ services:
     env: python
     plan: free
     rootDir: backend
-    buildCommand: "pip install -r requirements.txt"
+    buildCommand: >-
+      pip install -r requirements.txt &&
+      cd ../frontend && npm install && npm run build &&
+      mkdir -p ../backend/staticfiles && cp -R dist/. ../backend/staticfiles/
     startCommand: >-
-      python manage.py migrate --noinput &&
       python manage.py collectstatic --noinput &&
+      python manage.py migrate --noinput &&
       python manage.py create_admin &&
       python manage.py load_sample_data &&
       gunicorn config.wsgi:application --bind 0.0.0.0:$PORT

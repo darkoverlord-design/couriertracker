@@ -1,17 +1,25 @@
+import mimetypes
 import os
 from pathlib import Path
 
 from django.conf import settings
 from django.contrib import admin
-from django.http import FileResponse
+from django.http import FileResponse, Http404
 from django.urls import include, path, re_path
 
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://couriertracker.vercel.app/')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://frontend-virid-eta-qbm19vrciu.vercel.app/')
 
 
 def serve_frontend(request, path=''):
-    if request.path.startswith('/api/') or request.path.startswith('/admin/'):
-        return FileResponse(Path(settings.STATIC_ROOT, 'index.html').open('rb'), content_type='text/html; charset=utf-8')
+    rel_path = request.path.lstrip('/')
+
+    if rel_path.startswith(('api/', 'admin/')):
+        raise Http404
+
+    candidate = Path(settings.STATIC_ROOT) / rel_path
+    if candidate.exists() and candidate.is_file():
+        content_type, _ = mimetypes.guess_type(candidate.name)
+        return FileResponse(candidate.open('rb'), content_type=content_type or 'application/octet-stream')
 
     index_path = Path(settings.STATIC_ROOT) / 'index.html'
     if not index_path.exists():
@@ -27,7 +35,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('config.api_urls')),
     path('', serve_frontend, name='home'),
-    re_path(r'^(?!api/|admin/|static/|assets/|favicon\.svg|.*\.(?:js|css|png|jpg|jpeg|svg|ico|webp|json|map)$).+', serve_frontend),
+    re_path(r'^(?!api/|admin/|static/).+', serve_frontend),
 ]
 
 admin.site.site_header = 'CourierTrack Administration'
