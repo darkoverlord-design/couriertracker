@@ -127,7 +127,23 @@ export default function TrackingResults() {
     )
   }
 
-  const { shipment, tracking_history } = data
+  const shipment = data?.shipment
+  const trackingHistory = data?.tracking_history
+
+  if (!shipment) {
+    return (
+      <div className="container-app py-12 sm:py-16">
+        <div className="mx-auto max-w-lg text-center">
+          <AlertCircle className="mx-auto h-12 w-12 text-red-500" />
+          <h1 className="mt-4 text-xl font-bold text-gray-900">Something went wrong</h1>
+          <p className="mt-2 text-gray-600">The tracking response was incomplete. Please try again.</p>
+          <Link to="/track" className="mt-6 inline-block text-brand-600 hover:text-brand-700">
+            Try again
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container-app py-8 sm:py-12">
@@ -184,7 +200,7 @@ export default function TrackingResults() {
             <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
               <h2 className="text-lg font-semibold text-gray-900">Tracking History</h2>
               <div className="mt-6">
-                <TrackingTimeline events={tracking_history} />
+                <TrackingTimeline events={trackingHistory ?? []} />
               </div>
             </section>
           </div>
