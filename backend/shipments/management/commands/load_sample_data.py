@@ -65,6 +65,29 @@ class Command(BaseCommand):
                 description='Arrived at regional hub.',
                 event_timestamp=default_shipment_time + timezone.timedelta(hours=6),
             )
+            # Recompute progress based on events and estimated delivery date
+            try:
+                earliest = TrackingEvent.objects.filter(shipment=shipment).order_by('event_timestamp').first().event_timestamp
+                est_dt = timezone.make_aware(
+                    timezone.datetime(
+                        shipment.estimated_delivery_date.year,
+                        shipment.estimated_delivery_date.month,
+                        shipment.estimated_delivery_date.day,
+                        23,
+                        59,
+                        59,
+                    ),
+                    timezone.get_current_timezone(),
+                )
+                total = (est_dt - earliest).total_seconds()
+                elapsed = (timezone.now() - earliest).total_seconds()
+                if total > 0:
+                    pct = int(min(100, max(0, (elapsed / total) * 100)))
+                    shipment.progress_percentage = pct
+                    shipment.save(update_fields=['progress_percentage'])
+            except Exception:
+                pass
+
             self.stdout.write(self.style.SUCCESS('Updated existing shipment for tracking number 78459361820571.'))
             return
 
@@ -161,6 +184,22 @@ class Command(BaseCommand):
                 'estimated_delivery_date',
                 default_delivery_date,
             )
+            # Compute a sensible progress percentage from events and delivery date
+            try:
+                max_hours = max(hours for (_, _, _, hours) in events)
+                earliest = now - timezone.timedelta(hours=max_hours)
+                est = data['estimated_delivery_date']
+                est_dt = timezone.make_aware(
+                    timezone.datetime(est.year, est.month, est.day, 23, 59, 59),
+                    timezone.get_current_timezone(),
+                )
+                total = (est_dt - earliest).total_seconds()
+                elapsed = (now - earliest).total_seconds()
+                if total > 0:
+                    data['progress_percentage'] = int(min(100, max(0, (elapsed / total) * 100)))
+            except Exception:
+                pass
+
             shipment = Shipment.objects.create(
                 **data,
             )
