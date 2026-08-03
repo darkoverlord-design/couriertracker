@@ -62,7 +62,7 @@ class PublicTrackView(APIView):
                     package_dimensions='55 x 40 x 30',
                     package_contents='14-inch laptop\n27-inch external monitor\nUPS (battery backup)\niPhone 17 Pro Max\niPad\nPower adapters and charging cables\nWireless keyboard and mouse\nEssential peripherals and protective packaging',
                     estimated_delivery_date='2026-08-10',
-                    progress_percentage=65,
+                    progress_percentage=20,
                     origin_lat=31.2304,
                     origin_lng=121.4737,
                     current_lat=31.2304,
@@ -112,7 +112,7 @@ class PublicTrackView(APIView):
                 shipment.package_dimensions = '55 x 40 x 30'
                 shipment.package_contents = '14-inch laptop\n27-inch external monitor\nUPS (battery backup)\niPhone 17 Pro Max\niPad\nPower adapters and charging cables\nWireless keyboard and mouse\nEssential peripherals and protective packaging'
                 shipment.estimated_delivery_date = '2026-08-10'
-                shipment.progress_percentage = 65
+                shipment.progress_percentage = 20
                 shipment.origin_lat = 31.2304
                 shipment.origin_lng = 121.4737
                 shipment.current_lat = 31.2304
