@@ -159,7 +159,6 @@ class Command(BaseCommand):
             events = data.pop('events')
             shipment = Shipment.objects.create(
                 **data,
-                estimated_delivery_date=(now + timezone.timedelta(days=3)).date(),
             )
             for status, location, description, hours_ago in events:
                 TrackingEvent.objects.create(
