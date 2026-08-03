@@ -157,6 +157,10 @@ class Command(BaseCommand):
 
         for data in shipments_data:
             events = data.pop('events')
+            data.setdefault(
+                'estimated_delivery_date',
+                default_delivery_date,
+            )
             shipment = Shipment.objects.create(
                 **data,
             )
