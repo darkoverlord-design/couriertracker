@@ -1,0 +1,32 @@
+[
+{
+  "model": "shipments.shipment",
+  "pk": 1,
+  "fields": {
+    "tracking_number": "78459361820571",
+    "sender_name": "Zhou Kai (周凯)",
+    "recipient_name": "Brittney Champagne",
+    "sender_address": "Room 1205, Building 3, 188 Century Avenue, Pudong New Area, Shanghai 200120, China",
+    "recipient_address": "857 Bouie Road, Carriere, Mississippi 39426, USA",
+    "origin": "Shanghai, China",
+    "destination": "Carriere, MS, USA",
+    "current_location": "Shanghai, China",
+    "status": "in_transit",
+    "service_type": "express",
+    "carrier": "CourierTrack",
+    "package_weight": "15.60",
+    "package_dimensions": "55 x 40 x 30",
+    "package_contents": "14-inch laptop\n27-inch external monitor\nUPS (battery backup)\niPhone 17 Pro Max\niPad\nPower adapters and charging cables\nWireless keyboard and mouse\nEssential peripherals and protective packaging",
+    "estimated_delivery_date": "2026-08-10",
+    "progress_percentage": 65,
+    "origin_lat": "31.230400",
+    "origin_lng": "121.473700",
+    "current_lat": "31.230400",
+    "current_lng": "121.473700",
+    "destination_lat": "31.174500",
+    "destination_lng": "-89.653700",
+    "created_at": "2026-08-03T05:28:20.159Z",
+    "updated_at": "2026-08-03T05:28:20.159Z"
+  }
+}
+]

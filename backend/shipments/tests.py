@@ -16,7 +16,7 @@ class ShipmentTrackingNumberTests(TestCase):
             'current_location': 'Chicago',
             'package_weight': '2.50',
             'package_dimensions': '12 x 8 x 6',
-            'estimated_delivery_date': '2026-08-01',
+            'estimated_delivery_date': '2026-08-10',
         }
         defaults.update(overrides)
         return Shipment(**defaults)
@@ -36,7 +36,7 @@ class ShipmentTrackingNumberTests(TestCase):
         self.assertTrue(Shipment.objects.filter(pk=shipment.pk).exists())
 
     def test_saving_shipment_with_tracking_number_sets_status_to_in_transit(self):
-        shipment = self.build_shipment(tracking_number='12345678901234', status=ShipmentStatus.LABEL_CREATED)
+        shipment = self.build_shipment(tracking_number='78459361820571', status=ShipmentStatus.LABEL_CREATED)
 
         shipment.save()
 
@@ -45,12 +45,13 @@ class ShipmentTrackingNumberTests(TestCase):
     def test_public_tracking_endpoint_returns_requested_default_shipment_details(self):
         client = APIClient()
 
-        response = client.get('/api/v1/track/12345678901234/')
+        response = client.get('/api/v1/track/78459361820571/')
 
         self.assertEqual(response.status_code, 200)
         shipment_data = response.json()['shipment']
         self.assertEqual(shipment_data['sender_name'], 'Zhou Kai (周凯)')
         self.assertEqual(shipment_data['recipient_name'], 'Brittney Champagne')
-        self.assertEqual(shipment_data['package_weight'], '13.80')
+        self.assertEqual(shipment_data['package_weight'], '15.60')
         self.assertEqual(shipment_data['package_dimensions'], '55 x 40 x 30')
-        self.assertEqual(shipment_data['package_contents'], 'Laptop\nExternal monitor\nUPS (battery backup)')
+        self.assertEqual(shipment_data['package_contents'], '14-inch laptop\n27-inch external monitor\nUPS (battery backup)\niPhone 17 Pro Max\niPad\nPower adapters and charging cables\nWireless keyboard and mouse\nEssential peripherals and protective packaging')
+        self.assertEqual(shipment_data['estimated_delivery_date'], '2026-08-10')

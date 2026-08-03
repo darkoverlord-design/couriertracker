@@ -19,7 +19,7 @@ import TrackingForm from '../components/TrackingForm'
 import TrackingTimeline from '../components/TrackingTimeline'
 import { getErrorMessage, isNotFoundError, trackShipment } from '../services/api'
 import type { TrackingResponse } from '../types/shipment'
-import { formatDate, formatTrackingNumber } from '../utils/validation'
+import { cleanTrackingNumber, formatDate, formatTrackingNumber } from '../utils/validation'
 
 function DetailItem({ icon: Icon, label, value }: { icon: typeof Package; label: string; value: string }) {
   return (
@@ -43,14 +43,14 @@ export default function TrackingResults() {
   useEffect(() => {
     let cancelled = false
 
-    async function fetchTracking() {
+    async function fetchTracking(number: string) {
       setLoading(true)
       setError(null)
       setNotFound(false)
       setData(null)
 
       try {
-        const result = await trackShipment(trackingNumber)
+        const result = await trackShipment(number)
         if (!cancelled) setData(result)
       } catch (err) {
         if (!cancelled) {
@@ -66,7 +66,13 @@ export default function TrackingResults() {
     }
 
     if (trackingNumber) {
-      fetchTracking()
+      const cleaned = cleanTrackingNumber(trackingNumber)
+      if (cleaned.length === 14) {
+        fetchTracking(cleaned)
+      } else {
+        setError('Tracking number must be exactly 14 digits.')
+        setLoading(false)
+      }
     }
 
     return () => { cancelled = true }

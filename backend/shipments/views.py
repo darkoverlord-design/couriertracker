@@ -2,11 +2,13 @@ import logging
 import re
 
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from tracking.models import TrackingEvent
 from tracking.serializers import TrackingEventSerializer
 
 from .models import ServiceType, Shipment, ShipmentStatus
@@ -34,13 +36,15 @@ class PublicTrackView(APIView):
     authentication_classes = []
 
     def get(self, request, tracking_number):
+        tracking_number = re.sub(r'\D', '', tracking_number)
+
         if not re.fullmatch(r'\d{14}', tracking_number):
             return Response(
                 {'detail': 'Tracking number must be exactly 14 numeric digits.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if tracking_number == '12345678901234':
+        if tracking_number == '78459361820571':
             shipment = Shipment.objects.filter(tracking_number=tracking_number).first()
             if shipment is None:
                 shipment = Shipment.objects.create(
@@ -54,10 +58,10 @@ class PublicTrackView(APIView):
                     current_location='Shanghai, China',
                     status=ShipmentStatus.IN_TRANSIT,
                     service_type=ServiceType.EXPRESS,
-                    package_weight=13.8,
+                    package_weight=15.6,
                     package_dimensions='55 x 40 x 30',
-                    package_contents='Laptop\nExternal monitor\nUPS (battery backup)',
-                    estimated_delivery_date='2026-08-01',
+                    package_contents='14-inch laptop\n27-inch external monitor\nUPS (battery backup)\niPhone 17 Pro Max\niPad\nPower adapters and charging cables\nWireless keyboard and mouse\nEssential peripherals and protective packaging',
+                    estimated_delivery_date='2026-08-10',
                     progress_percentage=65,
                     origin_lat=31.2304,
                     origin_lng=121.4737,
@@ -65,6 +69,34 @@ class PublicTrackView(APIView):
                     current_lng=121.4737,
                     destination_lat=31.1745,
                     destination_lng=-89.6537,
+                )
+                TrackingEvent.objects.create(
+                    shipment=shipment,
+                    status=ShipmentStatus.LABEL_CREATED,
+                    location='Shanghai, China',
+                    description='Shipping label created.',
+                    event_timestamp=timezone.now() - timezone.timedelta(hours=6),
+                )
+                TrackingEvent.objects.create(
+                    shipment=shipment,
+                    status=ShipmentStatus.PICKED_UP,
+                    location='Shanghai, China',
+                    description='Package picked up from sender.',
+                    event_timestamp=timezone.now() - timezone.timedelta(hours=4),
+                )
+                TrackingEvent.objects.create(
+                    shipment=shipment,
+                    status=ShipmentStatus.IN_TRANSIT,
+                    location='Shanghai, China',
+                    description='Departed origin facility.',
+                    event_timestamp=timezone.now() - timezone.timedelta(hours=2),
+                )
+                TrackingEvent.objects.create(
+                    shipment=shipment,
+                    status=ShipmentStatus.IN_TRANSIT,
+                    location='Fresno, CA Distribution Center',
+                    description='Arrived at regional hub.',
+                    event_timestamp=timezone.now(),
                 )
             else:
                 shipment.sender_name = 'Zhou Kai (周凯)'
@@ -76,10 +108,10 @@ class PublicTrackView(APIView):
                 shipment.current_location = 'Shanghai, China'
                 shipment.status = ShipmentStatus.IN_TRANSIT
                 shipment.service_type = ServiceType.EXPRESS
-                shipment.package_weight = 13.8
+                shipment.package_weight = 15.6
                 shipment.package_dimensions = '55 x 40 x 30'
-                shipment.package_contents = 'Laptop\nExternal monitor\nUPS (battery backup)'
-                shipment.estimated_delivery_date = '2026-08-01'
+                shipment.package_contents = '14-inch laptop\n27-inch external monitor\nUPS (battery backup)\niPhone 17 Pro Max\niPad\nPower adapters and charging cables\nWireless keyboard and mouse\nEssential peripherals and protective packaging'
+                shipment.estimated_delivery_date = '2026-08-10'
                 shipment.progress_percentage = 65
                 shipment.origin_lat = 31.2304
                 shipment.origin_lng = 121.4737

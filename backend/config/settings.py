@@ -116,9 +116,13 @@ CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         'CORS_ALLOWED_ORIGINS',
-        'http://localhost:5173,https://couriertracker-1.onrender.com,https://couriertracker.vercel.app'
+        'http://localhost:5173,https://couriertracker-1.onrender.com,https://couriertracker.vercel.app,https://frontend-virid-eta-qbm19vrciu.vercel.app,https://frontend-qzn3ymlzh-darkoverlord074-3929s-projects.vercel.app'
     ).split(',')
     if origin.strip()
+]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r'^https://.*\.vercel\.app$',
+    r'^https://.*\.onrender\.com$',
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -126,7 +130,7 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         'CSRF_TRUSTED_ORIGINS',
-        'http://localhost:5173,https://couriertracker-1.onrender.com,https://couriertracker.vercel.app'
+        'http://localhost:5173,https://couriertracker-1.onrender.com,https://couriertracker.vercel.app,https://frontend-virid-eta-qbm19vrciu.vercel.app,https://frontend-qzn3ymlzh-darkoverlord074-3929s-projects.vercel.app'
     ).split(',')
     if origin.strip()
 ]

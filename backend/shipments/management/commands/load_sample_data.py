@@ -10,9 +10,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         now = timezone.now()
+        default_shipment_time = timezone.make_aware(timezone.datetime(2026, 8, 3, 12), timezone.get_current_timezone())
+        default_delivery_date = timezone.datetime(2026, 8, 10).date()
 
-        if Shipment.objects.filter(tracking_number='12345678901234').exists():
-            shipment = Shipment.objects.get(tracking_number='12345678901234')
+        if Shipment.objects.filter(tracking_number='78459361820571').exists():
+            shipment = Shipment.objects.get(tracking_number='78459361820571')
             shipment.sender_name = 'Zhou Kai (周凯)'
             shipment.sender_address = 'Room 1205, Building 3, 188 Century Avenue, Pudong New Area, Shanghai 200120, China'
             shipment.recipient_name = 'Brittney Champagne'
@@ -22,9 +24,9 @@ class Command(BaseCommand):
             shipment.current_location = 'Shanghai, China'
             shipment.status = ShipmentStatus.IN_TRANSIT
             shipment.service_type = ServiceType.EXPRESS
-            shipment.package_weight = 13.8
+            shipment.package_weight = 15.6
             shipment.package_dimensions = '55 x 40 x 30'
-            shipment.package_contents = 'Laptop\nExternal monitor\nUPS (battery backup)'
+            shipment.package_contents = '14-inch laptop\n27-inch external monitor\nUPS (battery backup)\niPhone 17 Pro Max\niPad\nPower adapters and charging cables\nWireless keyboard and mouse\nEssential peripherals and protective packaging'
             shipment.progress_percentage = 65
             shipment.origin_lat = 31.2304
             shipment.origin_lng = 121.4737
@@ -32,19 +34,43 @@ class Command(BaseCommand):
             shipment.current_lng = 121.4737
             shipment.destination_lat = 31.1745
             shipment.destination_lng = -89.6537
-            shipment.estimated_delivery_date = (now + timezone.timedelta(days=3)).date()
+            shipment.estimated_delivery_date = default_delivery_date
             shipment.save()
             TrackingEvent.objects.filter(shipment=shipment).delete()
-            TrackingEvent.objects.create(shipment=shipment, status=ShipmentStatus.LABEL_CREATED, location='Shanghai, China', description='Shipping label created.', event_timestamp=now - timezone.timedelta(hours=96))
-            TrackingEvent.objects.create(shipment=shipment, status=ShipmentStatus.PICKED_UP, location='Shanghai, China', description='Package picked up from sender.', event_timestamp=now - timezone.timedelta(hours=72))
-            TrackingEvent.objects.create(shipment=shipment, status=ShipmentStatus.IN_TRANSIT, location='Shanghai, China', description='Departed origin facility.', event_timestamp=now - timezone.timedelta(hours=48))
-            TrackingEvent.objects.create(shipment=shipment, status=ShipmentStatus.IN_TRANSIT, location='Fresno, CA Distribution Center', description='Arrived at regional hub.', event_timestamp=now - timezone.timedelta(hours=6))
-            self.stdout.write(self.style.SUCCESS('Updated existing shipment for tracking number 12345678901234.'))
+            TrackingEvent.objects.create(
+                shipment=shipment,
+                status=ShipmentStatus.LABEL_CREATED,
+                location='Shanghai, China',
+                description='Shipping label created.',
+                event_timestamp=default_shipment_time - timezone.timedelta(hours=4),
+            )
+            TrackingEvent.objects.create(
+                shipment=shipment,
+                status=ShipmentStatus.PICKED_UP,
+                location='Shanghai, China',
+                description='Package picked up from sender.',
+                event_timestamp=default_shipment_time - timezone.timedelta(hours=2),
+            )
+            TrackingEvent.objects.create(
+                shipment=shipment,
+                status=ShipmentStatus.IN_TRANSIT,
+                location='Shanghai, China',
+                description='Departed origin facility.',
+                event_timestamp=default_shipment_time,
+            )
+            TrackingEvent.objects.create(
+                shipment=shipment,
+                status=ShipmentStatus.IN_TRANSIT,
+                location='Fresno, CA Distribution Center',
+                description='Arrived at regional hub.',
+                event_timestamp=default_shipment_time + timezone.timedelta(hours=6),
+            )
+            self.stdout.write(self.style.SUCCESS('Updated existing shipment for tracking number 78459361820571.'))
             return
 
         shipments_data = [
             {
-                'tracking_number': '12345678901234',
+                'tracking_number': '78459361820571',
                 'sender_name': 'Acme Corporation',
                 'recipient_name': 'Jane Smith',
                 'sender_address': '100 Industrial Blvd, Los Angeles, CA 90001',
@@ -54,7 +80,7 @@ class Command(BaseCommand):
                 'current_location': 'Fresno, CA Distribution Center',
                 'status': ShipmentStatus.IN_TRANSIT,
                 'service_type': ServiceType.EXPRESS,
-                'package_weight': 12.5,
+                'package_weight': 15.6,
                 'package_dimensions': '18 x 12 x 8',
                 'progress_percentage': 65,
                 'origin_lat': 34.0522,
@@ -63,6 +89,8 @@ class Command(BaseCommand):
                 'current_lng': -119.7871,
                 'destination_lat': 37.7749,
                 'destination_lng': -122.4194,
+                'package_contents': '14-inch laptop\n27-inch external monitor\nUPS (battery backup)\niPhone 17 Pro Max\niPad\nPower adapters and charging cables\nWireless keyboard and mouse\nEssential peripherals and protective packaging',
+                'estimated_delivery_date': default_delivery_date,
                 'events': [
                     (ShipmentStatus.LABEL_CREATED, 'Los Angeles, CA', 'Shipping label created.', 96),
                     (ShipmentStatus.PICKED_UP, 'Los Angeles, CA', 'Package picked up from sender.', 72),
@@ -143,4 +171,4 @@ class Command(BaseCommand):
                 )
 
         self.stdout.write(self.style.SUCCESS('Successfully loaded 3 sample shipments.'))
-        self.stdout.write('Try tracking: 12345678901234')
+        self.stdout.write('Try tracking: 78459361820571')
