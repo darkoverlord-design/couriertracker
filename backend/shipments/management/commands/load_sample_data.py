@@ -34,7 +34,7 @@ class Command(BaseCommand):
             shipment.current_lng = 121.4737
             shipment.destination_lat = 31.1745
             shipment.destination_lng = -89.6537
-            shipment.estimated_delivery_date = timezone.datetime(2026, 8, 9).date()
+            shipment.estimated_delivery_date = timezone.datetime(2026, 8, 10).date()
             shipment.save()
             TrackingEvent.objects.filter(shipment=shipment).delete()
             # realistic same-day events for Aug 3
@@ -107,7 +107,7 @@ class Command(BaseCommand):
                 'destination_lat': 31.1745,
                 'destination_lng': -89.6537,
                 'package_contents': '14-inch laptop\n27-inch external monitor\nUPS (battery backup)\niPhone 17 Pro Max\niPad\nPower adapters and charging cables\nWireless keyboard and mouse\nEssential peripherals and protective packaging',
-                'estimated_delivery_date': timezone.datetime(2026, 8, 9).date(),
+                'estimated_delivery_date': timezone.datetime(2026, 8, 10).date(),
                 'events': [
                     (ShipmentStatus.LABEL_CREATED, 'Shanghai, China', 'Shipping label created.', 6),
                     (ShipmentStatus.PICKED_UP, 'Shanghai, China', 'Package picked up from sender.', 4),
