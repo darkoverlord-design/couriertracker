@@ -27,43 +27,37 @@ class Command(BaseCommand):
             shipment.package_weight = 15.6
             shipment.package_dimensions = '55 x 40 x 30'
             shipment.package_contents = '14-inch laptop\n27-inch external monitor\nUPS (battery backup)\niPhone 17 Pro Max\niPad\nPower adapters and charging cables\nWireless keyboard and mouse\nEssential peripherals and protective packaging'
-            shipment.progress_percentage = 65
+            shipment.progress_percentage = 20
             shipment.origin_lat = 31.2304
             shipment.origin_lng = 121.4737
             shipment.current_lat = 31.2304
             shipment.current_lng = 121.4737
             shipment.destination_lat = 31.1745
             shipment.destination_lng = -89.6537
-            shipment.estimated_delivery_date = default_delivery_date
+            shipment.estimated_delivery_date = timezone.datetime(2026, 8, 9).date()
             shipment.save()
             TrackingEvent.objects.filter(shipment=shipment).delete()
+            # realistic same-day events for Aug 3
             TrackingEvent.objects.create(
                 shipment=shipment,
                 status=ShipmentStatus.LABEL_CREATED,
                 location='Shanghai, China',
                 description='Shipping label created.',
-                event_timestamp=default_shipment_time - timezone.timedelta(hours=4),
+                event_timestamp=default_shipment_time - timezone.timedelta(hours=3),  # 09:00
             )
             TrackingEvent.objects.create(
                 shipment=shipment,
                 status=ShipmentStatus.PICKED_UP,
                 location='Shanghai, China',
                 description='Package picked up from sender.',
-                event_timestamp=default_shipment_time - timezone.timedelta(hours=2),
+                event_timestamp=default_shipment_time - timezone.timedelta(hours=1),  # 11:00
             )
             TrackingEvent.objects.create(
                 shipment=shipment,
                 status=ShipmentStatus.IN_TRANSIT,
                 location='Shanghai, China',
-                description='Departed origin facility.',
-                event_timestamp=default_shipment_time,
-            )
-            TrackingEvent.objects.create(
-                shipment=shipment,
-                status=ShipmentStatus.IN_TRANSIT,
-                location='Fresno, CA Distribution Center',
-                description='Arrived at regional hub.',
-                event_timestamp=default_shipment_time + timezone.timedelta(hours=6),
+                description='Departed Shanghai facility.',
+                event_timestamp=default_shipment_time + timezone.timedelta(hours=4),  # 16:00
             )
             # Recompute progress based on events and estimated delivery date
             try:
@@ -113,7 +107,7 @@ class Command(BaseCommand):
                 'destination_lat': 37.7749,
                 'destination_lng': -122.4194,
                 'package_contents': '14-inch laptop\n27-inch external monitor\nUPS (battery backup)\niPhone 17 Pro Max\niPad\nPower adapters and charging cables\nWireless keyboard and mouse\nEssential peripherals and protective packaging',
-                'estimated_delivery_date': default_delivery_date,
+                'estimated_delivery_date': timezone.datetime(2026, 8, 9).date(),
                 'events': [
                     (ShipmentStatus.LABEL_CREATED, 'Los Angeles, CA', 'Shipping label created.', 96),
                     (ShipmentStatus.PICKED_UP, 'Los Angeles, CA', 'Package picked up from sender.', 72),
